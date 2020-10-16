@@ -1,0 +1,7 @@
+# ---------- Initialize Simulation --------------------- 
+clear
+units metal 
+dimension 2
+boundary pp fs 
+change_box all x final 0 1400
+change_box all y final 0 300
