@@ -7,17 +7,17 @@ dimension 3
 # ---------- create box --------------------- 
 
 region box block 0 90 0 1400 0 300
-boundary p p p
+boundary p p fs
 lattice 	none 1.0
 create_box 1 box
 
 
 
 
-
 # ---------- create atoms --------------------- 
-create_atoms 1 random 7500 4 box
-#read_data atom.in
+#create_atoms 1 random 7500 4 box
+#read_data atom.in add append
+read_data atom.in add append
 mass 1 1.0
 
 
@@ -32,9 +32,8 @@ neigh_modify delay 5 check yes
 reset_timestep 0 
 compute 1 all pe
 min_style cg
-#dump id_init all custom 50 atoms_init.bp id xs ys zs vx vy vz fx fy fz
-dump id_final all custom 10000 atoms_init_f.bp id xs ys zs 
-minimize 1.0e-6 1.0e-8 10000 100000
+dump id all custom 5 output.bp id xs ys zs vx vy vz fx fy fz
+minimize 1.0e-8 1.0e-10 1000000 10000000
 print "All done!"
 
 
