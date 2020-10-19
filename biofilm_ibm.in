@@ -6,11 +6,10 @@ dimension 3
 
 # ---------- create box --------------------- 
 
-region box block 0 90 0 1400 0 300
+region box block 0 90 0 1400 0 150
 boundary p p fs
 lattice 	none 1.0
 create_box 1 box
-
 
 
 
@@ -22,18 +21,22 @@ mass 1 1.0
 
 
 # ---------- Define Interatomic Potential ---------------------
-pair_style morse $(2*2.5*4.5*1.2)
-pair_coeff * * .5 .08 29.29
+pair_style morse $(2*2.5*4.5*2)
+pair_coeff * * .05 .1 $(2*2.5*4.5*1)
 neighbor 0.3 bin
 neigh_modify delay 5 check yes
+thermo_modify lost warn
 
 
 # ---------- run settings ---------------------
+fix base all wall/reflect zlo EDGE
+fix 1 all nve
+#fix 2 all langevin 1.0 1.0 10.0 699483
+
 reset_timestep 0 
 compute 1 all pe
 min_style cg
-dump id all custom 5 output.bp id xs ys zs vx vy vz fx fy fz
-minimize 1.0e-8 1.0e-10 1000000 10000000
+dump id all custom 2 output.bp id xs ys zs vx vy vz fx fy fz
+#minimize 1.0e-4 1.0e-6 1000 10000
+run = 100
 print "All done!"
-
-
