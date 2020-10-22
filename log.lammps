@@ -9,11 +9,11 @@ atom_style molecular
 
 # ---------- create box ---------------------
 
-region box block 0 90 0 1400 0 300
-boundary p p fs
+region box block 0 90 0 1000 0 500
+boundary p p f
 lattice 	none 1.0
 create_box 1 box bond/types 1 extra/bond/per/atom 1000 extra/special/per/atom 1000
-Created orthogonal box = (0 0 0) to (90 1400 300)
+Created orthogonal box = (0 0 0) to (90 1000 500)
   1 by 1 by 1 MPI processor grid
 
 
@@ -22,16 +22,16 @@ Created orthogonal box = (0 0 0) to (90 1400 300)
 #create_atoms 1 random 7500 4 box
 #read_data atom.in add append
 read_data atom.in add append
-  orthogonal box = (-0.5 -0.5 -0.5) to (90 1400 300.03)
+  orthogonal box = (-0.5 -0.5 -0.5) to (90 1000 500)
   1 by 1 by 1 MPI processor grid
   reading atoms ...
-  7017 atoms
+  6131 atoms
   0 = max # of 1-2 neighbors
   0 = max # of 1-3 neighbors
   0 = max # of 1-4 neighbors
   2001 = max # of special neighbors
-  special bonds CPU = 0.00107312 secs
-  read_data CPU = 0.00786901 secs
+  special bonds CPU = 0.000702143 secs
+  read_data CPU = 0.00461793 secs
 #atom_style molecular
 mass 1 1.0
 
@@ -39,47 +39,43 @@ mass 1 1.0
 # ---------- Define Interatomic Potential ---------------------
 #create_bonds many all all 1 4.5 $(2*2.5*4.5*1.4)
 #create_bonds many all all 1 1.0 1.2
-pair_style morse $(2*2.5*4.5*1.8)
-pair_style morse 40.5
-pair_coeff * * 0 .05 $(2*2.5*4.5*1)
-pair_coeff * * 0 .05 22.5
+pair_style morse $(2*2.5*4.125*1.8)
+pair_style morse 37.125
+pair_coeff * * 0 .05 $(2*2.5*4.125*1)
+pair_coeff * * 0 .05 20.625
 bond_style morse
-bond_coeff 1 .6 .01 $(2*2.5*4.5*1)
-bond_coeff 1 .6 .01 22.5
-#create_bonds many all all 1 4.5 $(2*2.5*4.5*1.4)
-#bond_coeff  1 .1 .05 $(2*2.5*4.5*1)
-#bond_coeff 1 all .1 .05 $(2*2.5*4.5*1) $(2*2.5*4.5*1.4)
-#pair_style morse $(2*2.5*4.5*1.38)
-#pair_coeff * * .1 .05 $(2*2.5*4.5*1)
+bond_coeff 1 .01 .05 $(2*2.5*4.125*1)
+bond_coeff 1 .01 .05 20.625
+
 neighbor 0.3 bin
-neigh_modify delay 5 check yes
+neigh_modify delay 10 check yes
 thermo_modify lost warn
 
 
 # ---------- run settings ---------------------
 fix base all wall/reflect zlo EDGE
-#fix base all wall/morse zlo -$(2*2.5*4.5*1) .1 .05 0 $(2*2.5*4.5*2.5) units box
-fix 1 all nve
-fix 2 all langevin 1.0 1.0 1000.0 699483
-fix 3 all bond/create 5 1 1 $(2*2.5*4.5*1) 1
-fix 3 all bond/create 5 1 1 22.5 1
-fix 4 all bond/break 5 1 $(2*2.5*4.5*1*1.4)
-fix 4 all bond/break 5 1 31.499999999999996447
 
+fix 1 all nve
+fix 2 all langevin 5.0 5.0 100.0 69948
+fix 3 all bond/create 10 1 1 $(2*2.5*4.125*1) 1
+fix 3 all bond/create 10 1 1 20.625 1
+fix 4 all bond/break 10 1 $(2*2.5*4.125*1*1.4)
+fix 4 all bond/break 10 1 28.874999999999996447
+#fix base all wall/morse zlo -$(2*2.5*4.5) .06 .01 0 $(2*2.5*4.5*3) units box
 
 reset_timestep 0
 compute 1 all pe
 #min_style cgs
-dump id all custom 50 output.bp id xs ys zs vx vy vz fx fy fz
+dump id all custom 100 output.bp id xs ys zs vx vy vz fx fy fz
 #minimize 1.0e-4 1.0e-6 1000 10000
-run 5000
+run 10000
 WARNING: Fix bond/create is used multiple times  or with fix bond/break - may not work as expected (../fix_bond_create.cpp:230)
 Neighbor list info ...
-  update every 1 steps, delay 5 steps, check yes
+  update every 1 steps, delay 10 steps, check yes
   max neighbors/atom: 2000, page size: 100000
-  master list distance cutoff = 40.8
-  ghost atom cutoff = 40.8
-  binsize = 20.4, bins = 5 69 15
+  master list distance cutoff = 37.425
+  ghost atom cutoff = 37.425
+  binsize = 18.7125, bins = 5 54 27
   2 neighbor lists, perpetual/occasional/extra = 1 1 0
   (1) pair morse, perpetual
       attributes: half, newton on
@@ -91,38 +87,38 @@ Neighbor list info ...
       pair build: copy
       stencil: none
       bin: none
-Per MPI rank memory allocation (min/avg/max) = 404.1 | 404.1 | 404.1 Mbytes
-Step Temp E_pair E_mol TotEng Press Volume 
-       0            0            0            0            0            0     38090757 
-    5000     8.543003            0   0.01251873  0.013760025 -9.5187502e-09     38409652 
-Loop time of 22.3422 on 1 procs for 5000 steps with 7017 atoms
+Per MPI rank memory allocation (min/avg/max) = 375.8 | 375.8 | 375.8 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0            0            0            0            0 
+   10000    5.5924271            0   0.14668423    0.1473942 -6.9281761e-09 
+Loop time of 37.9658 on 1 procs for 10000 steps with 6131 atoms
 
-Performance: 38671298641.698 ns/day, 0.000 hours/ns, 223.792 timesteps/s
-99.2% CPU use with 1 MPI tasks x no OpenMP threads
+Performance: 45514594459.548 ns/day, 0.000 hours/ns, 263.395 timesteps/s
+97.6% CPU use with 1 MPI tasks x no OpenMP threads
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Pair    | 2.2446     | 2.2446     | 2.2446     |   0.0 | 10.05
-Bond    | 1.8174     | 1.8174     | 1.8174     |   0.0 |  8.13
-Neigh   | 10.494     | 10.494     | 10.494     |   0.0 | 46.97
-Comm    | 0.26425    | 0.26425    | 0.26425    |   0.0 |  1.18
-Output  | 1.1231     | 1.1231     | 1.1231     |   0.0 |  5.03
-Modify  | 6.3026     | 6.3026     | 6.3026     |   0.0 | 28.21
-Other   |            | 0.09654    |            |       |  0.43
+Pair    | 8.9695     | 8.9695     | 8.9695     |   0.0 | 23.63
+Bond    | 4.1747     | 4.1747     | 4.1747     |   0.0 | 11.00
+Neigh   | 14.772     | 14.772     | 14.772     |   0.0 | 38.91
+Comm    | 0.37085    | 0.37085    | 0.37085    |   0.0 |  0.98
+Output  | 1.0568     | 1.0568     | 1.0568     |   0.0 |  2.78
+Modify  | 8.4585     | 8.4585     | 8.4585     |   0.0 | 22.28
+Other   |            | 0.1633     |            |       |  0.43
 
-Nlocal:    7017 ave 7017 max 7017 min
+Nlocal:    6131 ave 6131 max 6131 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Nghost:    7168 ave 7168 max 7168 min
+Nghost:    6068 ave 6068 max 6068 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Neighs:    23094 ave 23094 max 23094 min
+Neighs:    43310 ave 43310 max 43310 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
 
-Total # of neighbors = 23094
-Ave neighs/atom = 3.29115
-Ave special neighs/atom = 103.463
-Neighbor list builds = 722
-Dangerous builds = 86
+Total # of neighbors = 43310
+Ave neighs/atom = 7.0641
+Ave special neighs/atom = 164.033
+Neighbor list builds = 607
+Dangerous builds = 1
 print "All done!"
 All done!
-Total wall time: 0:00:22
+Total wall time: 0:00:38
