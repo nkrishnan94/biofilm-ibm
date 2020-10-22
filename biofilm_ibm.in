@@ -2,14 +2,16 @@
 clear
 units micro
 dimension 3
+atom_style molecular
+
 
 
 # ---------- create box --------------------- 
 
-region box block 0 90 0 1400 0 150
+region box block 0 90 0 1400 0 300
 boundary p p fs
 lattice 	none 1.0
-create_box 1 box
+create_box 1 box bond/types 1 extra/bond/per/atom 1000 extra/special/per/atom 1000
 
 
 
@@ -17,12 +19,22 @@ create_box 1 box
 #create_atoms 1 random 7500 4 box
 #read_data atom.in add append
 read_data atom.in add append
+#atom_style molecular
 mass 1 1.0
 
 
 # ---------- Define Interatomic Potential ---------------------
-pair_style morse $(2*2.5*4.5*2)
-pair_coeff * * .05 .1 $(2*2.5*4.5*1)
+#create_bonds many all all 1 4.5 $(2*2.5*4.5*1.4) 
+#create_bonds many all all 1 1.0 1.2
+pair_style morse $(2*2.5*4.5*1.8)
+pair_coeff * * 0 .05 $(2*2.5*4.5*1)
+bond_style morse
+bond_coeff 1 .6 .01 $(2*2.5*4.5*1) 
+#create_bonds many all all 1 4.5 $(2*2.5*4.5*1.4) 
+#bond_coeff  1 .1 .05 $(2*2.5*4.5*1) 
+#bond_coeff 1 all .1 .05 $(2*2.5*4.5*1) $(2*2.5*4.5*1.4)
+#pair_style morse $(2*2.5*4.5*1.38)
+#pair_coeff * * .1 .05 $(2*2.5*4.5*1)
 neighbor 0.3 bin
 neigh_modify delay 5 check yes
 thermo_modify lost warn
@@ -30,13 +42,17 @@ thermo_modify lost warn
 
 # ---------- run settings ---------------------
 fix base all wall/reflect zlo EDGE
+#fix base all wall/morse zlo -$(2*2.5*4.5*1) .1 .05 0 $(2*2.5*4.5*2.5) units box
 fix 1 all nve
-#fix 2 all langevin 1.0 1.0 10.0 699483
+fix 2 all langevin 1.0 1.0 1000.0 699483
+fix 3 all bond/create 5 1 1 $(2*2.5*4.5*1) 1
+fix 4 all bond/break 5 1 $(2*2.5*4.5*1*1.4)
+
 
 reset_timestep 0 
 compute 1 all pe
-min_style cg
-dump id all custom 2 output.bp id xs ys zs vx vy vz fx fy fz
+#min_style cgs
+dump id all custom 50 output.bp id xs ys zs vx vy vz fx fy fz
 #minimize 1.0e-4 1.0e-6 1000 10000
-run = 100
+run 5000
 print "All done!"
