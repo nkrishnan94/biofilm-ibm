@@ -1,0 +1,95 @@
+
+#-------------------------- Initial Setup -------------------------------------#
+units       lj
+atom_style  atomic
+dimension   3
+boundary    p p p
+timestep    0.01
+#------------------------------------------------------------------------------#
+
+
+pair_style lj/cut 2.5 #
+
+
+#-------------------------- Atomic Setup --------------------------------------#
+region film block 0 100 0 6 0 6 # Geometrical region.
+#region substrate block 0 100 -.5 -.5 0 6 # Geometrical region.
+create_box 3 film # Create simulation box.
+#create_box 1 substrate # Create simulation box.
+create_atoms 1 random 2500 30 film # Create atoms at random within film.
+create_atoms 2 random 2500 340 film # Create atoms at random within film.
+
+variable        x equal 100
+variable        z equal 6
+lattice         sc 0.8442
+
+variable        xx internal 0.0
+variable        zz internal 0.0
+variable        v equal "1>0"
+create_atoms    3 box var v set x xx set z zz
+
+
+neigh_modify every 1 delay 0 check yes # Update neighbor list.
+
+#minimize 1.0e-4 1.0e-6 1000 1000 
+mass 1 1
+mass 2 1
+mass 3 10
+
+pair_style lj/cut 2.5 # Define interaction potential.
+#pair_coeff * * 1 1
+pair_coeff 1 1 1.0 1.0 1.5
+pair_coeff 1 2 1.5 0.80 2
+pair_coeff 2 2 0.5 0.88 2.2
+pair_coeff 1 3 0 0 0
+pair_coeff 2 3 0 0 0
+pair_coeff 3 3 0 0 0
+
+#pair_style table lookup 100000
+#pair_coeff * 1 potential.table CUSTOM 2.5
+
+fix 1 1 spring/self 10.0 y
+
+minimize 1.0e-4 1.0e-6 1000 1000 
+
+#-------------------------------- Outputs -------------------------------------#
+thermo 1000
+thermo_style custom step temp press density ly
+dump 1 all atom 1000 traj_KA_substr.out 
+dump 3 all xyz 1000 traj_KA_substr.xyz
+dump_modify 1 sort id append yes
+#dump_modify 2 sort c_stress[*] append yess
+#dump 2 all custom 1000 stress.out c_stress[*]
+#dump 3 all custom 1000 press.out c_press
+#dump 4 all custom 1000 area.out c_tot_area[*]
+#pair_write 1 1 100000 r .0001 2.5 interp.table CUSTOM
+
+#------------------------------------------------------------------------------#
+
+#------------------------- Running the Simulation -----------------------------#
+fix 1 all nve/limit 0.1
+fix 2 all langevin 2.0 2.0 0.5 1530917 zero yes
+velocity all create 2.0 4928351 mom yes rot yes dist gaussian
+run 5000
+unfix 1 
+unfix 2
+#------------------------------------------------------------------------------#
+
+fix 10 all nvt temp 3 0.1 $(100.0*dt)
+run 5000
+unfix 10
+
+fix 20 all npt temp 0.1 0.1 $(100.0*dt) y 0 0 $(1000.0*dt)
+run 5000
+unfix 20
+
+change_box all y final -40 40
+
+fix 30 all nvt temp 0.1 0.1 $(100.0*dt)
+run 5000
+
+fix 40 all deform 1 x scale 0.6 remap x units box 
+run 10000
+
+unfix 40
+run 10000 
