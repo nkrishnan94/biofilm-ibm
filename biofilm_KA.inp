@@ -12,7 +12,7 @@ pair_style lj/cut 2.5 #
 
 
 #-------------------------- Atomic Setup --------------------------------------#
-region film block 0 200 0 6 0 6 # Geometrical region.
+region film block 0 100 0 6 0 6 # Geometrical region.
 create_box 2 film # Create simulation box.
 create_atoms 1 random 2500 30 film # Create atoms at random within film.
 create_atoms 2 random 2500 340 film # Create atoms at random within film.
@@ -35,21 +35,22 @@ pair_coeff 2 2 0.5 0.88 2.2
 minimize 1.0e-4 1.0e-6 1000 1000 
 
 #-------------------------------- Outputs -------------------------------------#
-thermo 1000
-thermo_style custom step temp press density ly
+
 #dump 1 all xyz 1000 traj_short.xyz
 #compute stress all centroid/stress/atom NULL
 #compute stress all stress/atom NULL
 #compute press all pressure NULL pair
-#compute area precipitate voronoi/atom surface matrix
-#compute tot_area all reduce sum c_area[3]
+compute area all voronoi/atom surface all
+compute tot_area all reduce sum c_area[3]
 dump 1 all atom 1000 traj_KA.out 
 dump 3 all xyz 1000 traj_KA.xyz
 dump_modify 1 sort id append yes
 #dump_modify 2 sort c_stress[*] append yess
 #dump 2 all custom 1000 stress.out c_stress[*]
 #dump 3 all custom 1000 press.out c_press
-#dump 4 all custom 1000 area.out c_tot_area[*]
+#dump 4 all custom 1000 area.out c_tot_area
+thermo 1000
+thermo_style custom step temp press density c_tot_area ly
 #pair_write 1 1 100000 r .0001 2.5 interp.table CUSTOM
 
 #------------------------------------------------------------------------------#
