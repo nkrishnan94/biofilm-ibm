@@ -20,12 +20,12 @@
 #! How many many cores will be allocated per task? (for single core jobs always leave this at 1)
 #SBATCH --cpus-per-task=1
 #! How much wallclock time will be required?
-#SBATCH --time=6:00:00
+#SBATCH --time=3:00:00
 #! Estimated maximum memory needed (job is force-stopped if exceeded):
 #! Submit a job array with index values between 0 and 31
 #! NOTE: This must be a range, not a single number (i.e. specifying '32' here would only run one job, with index 32)
 #SBATCH --mem=5980mb
-#SBATCH --array=1-300
+#SBATCH --array=1-100
 
 #! This is the partition name.
 #SBATCH -p skylake

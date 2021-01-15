@@ -9,9 +9,9 @@ timestep    0.01
 
 
 #-------------------------- Atomic Setup --------------------------------------#
-region film block 0 100 0 6 0 6 # Geometrical region.
+region film block 0 100 0 16 0 6 # Geometrical region.
 create_box 1 film # Create simulation box.
-create_atoms 1 random 5000 30 film # Create atoms at random within film.
+create_atoms 1 random 12000 30 film # Create atoms at random within film.
 
 neigh_modify every 1 delay 0 check yes # Update neighbor list.
 
@@ -34,7 +34,7 @@ thermo_style custom step temp press density ly
 #compute area precipitate voronoi/atom surface matrix
 #compute tot_area all reduce sum c_area[3]
 dump 1 all atom 1000 traj.out 
-dump 3 all xyz 1000 traj.xyz
+dump 3 all xyz 1000 traj_18.xyz
 dump_modify 1 sort id append yes
 #dump_modify 2 sort c_stress[*] append yess
 #dump 2 all custom 1000 stress.out c_stress[*]

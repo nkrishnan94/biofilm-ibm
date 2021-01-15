@@ -83,7 +83,7 @@ def getStressArr(file,tTot,cellNum):
         stress_arr[t] = np.array([np.array(cell_str[i].split( )).astype(float) for i in range(len(cell_str))])
         
         
-    tens_i = [0,3,4,6,2,5,7,8,2]
+    tens_i = [0,3,4,6,1,5,7,8,2]
     stress_arr = stress_arr[:,:,[tens_i]].reshape((tTot,cellNum, 3,3))
 
 
@@ -156,7 +156,8 @@ def getLastCellArr(file,tTot,cellNum):
         for line in myfile:
             if "ITEM: TIMESTEP" in line:
                 break
-            cell_str.append(line)
+            if len(line.split( )[2:])>1:    
+                cell_str.append(line)
 
 
     cell_arr = np.array([np.array(cell_str[i].split( )[2:]).astype(float) for i in range(len(cell_str))])

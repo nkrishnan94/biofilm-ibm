@@ -1,0 +1,166 @@
+LAMMPS (3 Mar 2020)
+
+#-------------------------- Initial Setup -------------------------------------#
+units       lj
+atom_style  atomic
+dimension   3
+boundary    p p p
+timestep    0.01
+#------------------------------------------------------------------------------#
+
+
+pair_style lj/cut 2.5 #
+
+
+#-------------------------- Atomic Setup --------------------------------------#
+region film block 0 100 0 3 0 6 # Geometrical region.
+create_box 2 film # Create simulation box.
+Created orthogonal box = (0 0 0) to (100 3 6)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 random 3375 30 film # Create atoms at random within film.
+Created 3375 atoms
+  create_atoms CPU = 0.00051403 secs
+create_atoms 2 random 3375 340 film # Create atoms at random within film.
+Created 3375 atoms
+  create_atoms CPU = 0.000181198 secs
+
+neigh_modify every 1 delay 0 check yes # Update neighbor list.
+
+#minimize 1.0e-4 1.0e-6 1000 1000
+mass 1 1
+mass 2 1
+#mass 3 10
+
+pair_style lj/cut 2.5 # Define interaction potential.
+#pair_coeff * * 1 1
+pair_coeff 1 1 1.0 1.0 1.5
+pair_coeff 1 2 1.5 0.80 2
+pair_coeff 2 2 0.5 0.88 2.2
+#pair_style table lookup 100000
+#pair_coeff * 1 potential.table CUSTOM 2.5
+
+minimize 1.0e-4 1.0e-6 1000 1000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.5
+  ghost atom cutoff = 2.5
+  binsize = 1.25, bins = 80 3 5
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 14.56 | 14.56 | 14.56 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0 2.290746e+15            0 2.290746e+15 3.436119e+16 
+     140            0    193.01387            0    193.01387    3625.7696 
+Loop time of 3.88218 on 1 procs for 140 steps with 6750 atoms
+
+96.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     2.29074598755e+15      193.019701682      193.013873802
+  Force two-norm initial, final = 6.23809e+21 57302.6
+  Force max component initial, final = 3.05652e+21 26516
+  Final line search alpha, max atom move = 3.26014e-05 0.86446
+  Iterations, force evaluations = 140 265
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2.678      | 2.678      | 2.678      |   0.0 | 68.98
+Neigh   | 1.0911     | 1.0911     | 1.0911     |   0.0 | 28.11
+Comm    | 0.059324   | 0.059324   | 0.059324   |   0.0 |  1.53
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.05378    |            |       |  1.39
+
+Nlocal:    6750 ave 6750 max 6750 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    27819 ave 27819 max 27819 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    601470 ave 601470 max 601470 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 601470
+Ave neighs/atom = 89.1067
+Neighbor list builds = 50
+Dangerous builds = 0
+
+#-------------------------------- Outputs -------------------------------------#
+
+#dump 1 all xyz 1000 traj_short.xyz
+#compute stress all centroid/stress/atom NULL
+#compute stress all stress/atom NULL
+#compute press all pressure NULL pair
+#compute area all voronoi/atom surface all
+#compute tot_area all reduce sum c_area[3]
+dump 1 all atom 1000 traj_KA_3.out
+dump 3 all xyz 1000 traj_KA_9.xyz
+dump_modify 1 sort id append yes
+#dump_modify 2 sort c_stress[*] append yess
+#dump 2 all custom 1000 stress.out c_stress[*]
+#dump 3 all custom 1000 press.out c_press
+#dump 4 all custom 1000 area.out c_tot_area
+thermo 1000
+thermo_style custom step temp press density ly
+#pair_write 1 1 100000 r .0001 2.5 interp.table CUSTOM
+
+#------------------------------------------------------------------------------#
+
+#------------------------- Running the Simulation -----------------------------#
+fix 1 all nve/limit 0.1
+fix 2 all langevin 2.0 2.0 0.5 1530917 zero yes
+velocity all create 2.0 4928351 mom yes rot yes dist gaussian
+run 5000
+Per MPI rank memory allocation (min/avg/max) = 11.2 | 11.2 | 11.2 Mbytes
+Step Temp Press Density Ly 
+     140            2    3633.2685         3.75            3 
+    1000    30.950209    6151.2779         3.75            3 
+    2000    30.748767    6004.2192         3.75            3 
+    3000    30.595341    5959.1337         3.75            3 
+    4000    30.695239    5911.0908         3.75            3 
+    5000    30.757811    5882.3077         3.75            3 
+    5140    30.664587    5881.3363         3.75            3 
+Loop time of 85.9964 on 1 procs for 5000 steps with 6750 atoms
+
+Performance: 50234.643 tau/day, 58.142 timesteps/s
+97.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 31.886     | 31.886     | 31.886     |   0.0 | 37.08
+Neigh   | 51.242     | 51.242     | 51.242     |   0.0 | 59.59
+Comm    | 1.4548     | 1.4548     | 1.4548     |   0.0 |  1.69
+Output  | 0.035605   | 0.035605   | 0.035605   |   0.0 |  0.04
+Modify  | 1.0356     | 1.0356     | 1.0356     |   0.0 |  1.20
+Other   |            | 0.3423     |            |       |  0.40
+
+Nlocal:    6750 ave 6750 max 6750 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    27818 ave 27818 max 27818 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    600631 ave 600631 max 600631 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 600631
+Ave neighs/atom = 88.9824
+Neighbor list builds = 2499
+Dangerous builds = 0
+unfix 1
+unfix 2
+#------------------------------------------------------------------------------#
+
+fix 10 all nvt temp 3 0.1 $(100.0*dt)
+fix 10 all nvt temp 3 0.1 1
+run 5000
+Per MPI rank memory allocation (min/avg/max) = 14.39 | 14.39 | 14.39 Mbytes
+Step Temp Press Density Ly 
+    5140    30.664587    5881.3363         3.75            3 
+ERROR: Lost atoms: original 6750 current 649 (../thermo.cpp:438)
+Last command: run 5000
