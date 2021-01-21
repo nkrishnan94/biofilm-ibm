@@ -7,14 +7,14 @@ from datetime import datetime
 path = os.getcwd()
 
 z_length = np.array([6])
-x_length = np.array([100,150,200])
+x_length = np.array([100])
 deform_scale = np.array([.6])
                         
 time_str = datetime.now()
 d=time_str.strftime("%m_%d_%y_%H_%M_%S")
 new_path = path+"/sim_files_LJ"
 filmlngth =100
-samples = 100
+samples = 1
 try:
     os.mkdir(new_path)
 except:
@@ -57,15 +57,15 @@ for s in deform_scale:
 		        f.write('#-------------------------------- Outputs -------------------------------------#\n')
 		        f.write('compute stress all centroid/stress/atom NULL\n')
 		        f.write('compute press all pressure NULL pair\n')
-		        f.write('compute area all voronoi/atom surface all\n')
-		        f.write('compute tot_area all reduce sum c_area[3]\n')
+		        #f.write('compute area all voronoi/atom surface all\n')
+		        #f.write('compute tot_area all reduce sum c_area[3]\n')
 		        f.write('compute tot_stress all reduce sum c_stress[1]\n')
-		        f.write('dump 1 all atom 500 ' +new_path+'/traj_LJ_'+file_str+'.out\n')
-		        f.write('dump 3 all xyz 500 ' +new_path+'/traj_LJ_'+file_str+'.xyz\n')
-		        f.write('dump_modify 1 sort id append yes\n')
+		        #f.write('dump 1 all atom 500 ' +new_path+'/traj_LJ_'+file_str+'.out\n')
+		        #f.write('dump 3 all xyz 500 ' +new_path+'/traj_LJ_'+file_str+'.xyz\n')
+		        #f.write('dump_modify 1 sort id append yes\n')
 		        #f.write('dump 2 all custom 500 ' +new_path+'/stress_LJ_'+file_str+'.out c_stress[*]\n')
 		        f.write('thermo 500\n')
-		        f.write('thermo_style custom step temp press density ly c_tot_area c_tot_stress\n')
+		        f.write('thermo_style custom step temp press density ly c_tot_stress\n')
 
 		        f.write('#------------------------------------------------------------------------------#\n')
 		        f.write('#------------------------- Running the Simulation -----------------------------#\n')
@@ -95,6 +95,7 @@ for s in deform_scale:
 
 		        f.write('unfix 40\n')
 		        f.write('run 10000\n')
+		        f.write('write_dump all atom ' +new_path+'/traj_LJ_'+file_str+'.out\n')
 		        f.close()
 		        cnt+=1
                 
